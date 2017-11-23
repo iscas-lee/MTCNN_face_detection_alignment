@@ -59,9 +59,13 @@ function [total_boxes points] = detect_face(img,minsize,PNet,RNet,ONet,LNet,thre
 		%second stage
  		tempimg=zeros(24,24,3,numbox);
 		for k=1:numbox
-			tmp=zeros(tmph(k),tmpw(k),3);
-			tmp(dy(k):edy(k),dx(k):edx(k),:)=img(y(k):ey(k),x(k):ex(k),:);
-			tempimg(:,:,:,k)=imResample(tmp,[24 24],'bilinear');
+            if tmph(k)>size(img,1)*2 || tmpw(k) > size(img,2)*2
+                tempimg(:,:,:,k) = zeros(24,24,3);
+            else
+                tmp=zeros(tmph(k),tmpw(k),3);
+                tmp(dy(k):edy(k),dx(k):edx(k),:)=img(y(k):ey(k),x(k):ex(k),:);
+                tempimg(:,:,:,k)=imResample(tmp,[24 24],'bilinear');
+            end;
 		end
         tempimg=(tempimg-127.5)*0.0078125;
 		RNet.blobs('data').reshape([24 24 3 numbox]);
@@ -83,9 +87,13 @@ function [total_boxes points] = detect_face(img,minsize,PNet,RNet,ONet,LNet,thre
 			[dy edy dx edx y ey x ex tmpw tmph]=pad(total_boxes,w,h);
             tempimg=zeros(48,48,3,numbox);
 			for k=1:numbox
-				tmp=zeros(tmph(k),tmpw(k),3);
-				tmp(dy(k):edy(k),dx(k):edx(k),:)=img(y(k):ey(k),x(k):ex(k),:);
-				tempimg(:,:,:,k)=imResample(tmp,[48 48],'bilinear');
+                if tmph(k)>size(img,1)*2 || tmpw(k) > size(img,2)*2
+                    tempimg(:,:,:,k) = zeros(48,48,3);
+                else
+                    tmp=zeros(tmph(k),tmpw(k),3);
+                    tmp(dy(k):edy(k),dx(k):edx(k),:)=img(y(k):ey(k),x(k):ex(k),:);
+                    tempimg(:,:,:,k)=imResample(tmp,[48 48],'bilinear');
+                end
 			end
 			tempimg=(tempimg-127.5)*0.0078125;
 			ONet.blobs('data').reshape([48 48 3 numbox]);
